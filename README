@@ -1,0 +1,66 @@
+How to do a very simple comparison.
+
+This is a three step process first download the latest version of osmosis 
+http://wiki.openstreetmap.org/wiki/Osmosis#Latest_Stable_Version
+
+We will use this to filter and extract the area we are looking at. 
+
+Secondly I downloaded the relevant extract for the area I was looking for from geofabrik:
+http://download.geofabrik.de/osm/
+
+In my example I used scotland.tar.bz2 
+
+Step 1: Extract
+---------------
+
+Use osmosis to extract the relevant area and filter for just highways:
+
+bzcat scotland.osm.bz2 | ./osmosis-0.34/bin/osmosis \
+  --read-xml enableDateParsing=no file=/dev/stdin \
+  --bounding-box top=56 left=-3.419 bottom=55.868 right=-3.084 \
+  --tf accept-ways highway=*  \
+  --tf reject-relations \
+  --tf reject-nodes \
+  --write-xml process.osm
+
+Substitute the .osm.bz file for one you're using, make sure that the version of osmosis you have is in the right place and the bounding box is correct and you should have something to work with.
+
+If you have a polygone for the area you are interested in then this could be used instead.
+
+Step 2: Produce Highway List
+----------------------------
+
+The second step is to produce a list of highways, to do this simply run streetlist.py
+
+./streetlist.py > osm_streets.txt
+
+This will take the process.osm and provide a csv list of streets. 
+
+Step 3: Compare osm with "other list"
+-------------------------------------
+
+The final step is to use compare.py to compare the list of streets between the osm and other list.
+Currently this is a tab separated file extracted from the edinburgh council pdf's 
+
+./compare.py > compare.csv
+
+This will produce a "merged" csv list of the two files.
+
+
+---------------------------------------------------------------------------
+
+TODO:
+
+Lots to do. 
+
+  * Tidy up code - this is my very first python...
+  * Add some kind of exceptions list
+  * Automatic stats counting
+  * Extract more than just ways. (for example the edinburgh list seems to have some building names) (Need stream based processing for this)
+  * Stream processing of XML will be a lot more efficient.
+  * Currently if multiple ways exist in osm then this isn't handled very well
+  * work out road distances
+
+
+
+
